@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sơ đồ tư duy – NaHCO₃</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --c1: #ff4757; --c1g: linear-gradient(135deg,#ff4757,#ff6b81);
+  --c2: #ffa502; --c2g: linear-gradient(135deg,#ffa502,#ffcd56);
+  --c3: #2ed573; --c3g: linear-gradient(135deg,#2ed573,#7bed9f);
+  --c4: #1e90ff; --c4g: linear-gradient(135deg,#1e90ff,#70b8ff);
+  --c5: #ff6bc1; --c5g: linear-gradient(135deg,#ff6bc1,#ffb3dd);
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: #0a0e1a;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── BG ── */
+.bg {
+  position: fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 8%,  rgba(30,144,255,.18) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 85% 85%,  rgba(46,213,115,.14) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 65% at 55% 25%,  rgba(255,71,87,.10)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 10% 60%,  rgba(255,107,193,.08)0%, transparent 50%),
+    radial-gradient(ellipse 40% 50% at 90% 20%,  rgba(255,165,2,.07)  0%, transparent 50%);
+}
+/* moving particles */
+.particle {
+  position:absolute;
+  border-radius:50%;
+  animation: drift linear infinite;
+  opacity:0;
+}
+@keyframes drift {
+  0%   { opacity:0; transform: translateY(100vh) scale(0); }
+  10%  { opacity:.6; }
+  90%  { opacity:.3; }
+  100% { opacity:0; transform: translateY(-10vh) scale(1.2); }
+}
+/* grid dots */
+.bg::after {
+  content:'';position:absolute;inset:0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* ── CHEMISTRY DECORATIONS (SVG layer) ── */
+.chem-deco {
+  position: fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}
+
+/* floating molecule nodes */
+.mol-node {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid;
+  display: flex; align-items:center; justify-content:center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  animation: floatMol ease-in-out infinite;
+  backdrop-filter: blur(4px);
+}
+@keyframes floatMol {
+  0%,100%{ transform: translateY(0) rotate(0deg); opacity:.5; }
+  33%    { transform: translateY(-14px) rotate(4deg); opacity:.8; }
+  66%    { transform: translateY(8px) rotate(-3deg); opacity:.6; }
+}
+
+/* test tube SVG decoration */
+.deco-svg {
+  position: fixed;
+  opacity: .07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* bubbles */
+.bubble {
+  position: fixed;
+  border-radius: 50%;
+  border: 1px solid;
+  animation: bubbleRise linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes bubbleRise {
+  0%  { transform: translateY(0) scale(1);   opacity: 0; }
+  10% { opacity: .4; }
+  85% { opacity: .2; }
+  100%{ transform: translateY(-100vh) scale(1.4); opacity: 0; }
+}
+
+/* ── PAGE ── */
+.page {
+  position: relative; z-index:1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ── HEADER ── */
+.header { text-align:center; margin-bottom: 48px; position: relative; }
+
+.header .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem; font-weight:600;
+  color: #1e90ff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items:center; justify-content:center; gap:8px;
+}
+.eyebrow::before,.eyebrow::after {
+  content:'';display:block;width:40px;height:1px;background:#1e90ff44;
+}
+
+.header h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: #f0f4ff;
+}
+.header h1 .formula {
+  display: inline-block;
+  background: linear-gradient(90deg, #1e90ff, #2ed573, #ff6bc1);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200%;
+  animation: gradShift 4s ease-in-out infinite;
+}
+/* fix subscript rendering */
+.header h1 .formula sub {
+  -webkit-text-fill-color: transparent;
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-size: .6em;
+  vertical-align: sub;
+}
+@keyframes gradShift { 0%,100%{background-position:0%} 50%{background-position:100%} }
+
+.header .tagline {
+  margin-top:10px;
+  font-size:.82rem;color:#4a5568;letter-spacing:1px;
+}
+
+/* badges row */
+.badge-row {
+  display: flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap;
+}
+.badge {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;font-weight:600;
+  padding:5px 14px;border-radius:20px;
+  border:1px solid;
+  backdrop-filter:blur(10px);
+}
+.badge.b1{color:#1e90ff;border-color:#1e90ff40;background:rgba(30,144,255,.08);}
+.badge.b2{color:#2ed573;border-color:#2ed57340;background:rgba(46,213,115,.08);}
+.badge.b3{color:#ffa502;border-color:#ffa50240;background:rgba(255,165,2,.08);}
+
+/* ── CENTER MOLECULE DISPLAY ── */
+.molecule-row {
+  display: flex; align-items:center; justify-content:center;
+  gap: 0; margin-bottom:52px;
+  position: relative;
+}
+.mol-center {
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(30,144,255,.4);
+  border-radius: 20px;
+  padding: 22px 40px;
+  text-align: center;
+  position: relative;
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 0 40px rgba(30,144,255,.15),
+    0 0 80px rgba(30,144,255,.06),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+.mol-center::before {
+  content:'';position:absolute;inset:-1px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(30,144,255,.3),rgba(46,213,115,.2),rgba(255,107,193,.2));
+  z-index:-1;
+  animation:borderGlow 3s ease-in-out infinite;
+}
+@keyframes borderGlow {
+  0%,100%{opacity:.5} 50%{opacity:1}
+}
+.mol-formula {
+  font-family:'JetBrains Mono',monospace;
+  font-size:2.4rem;font-weight:600;
+  background:linear-gradient(135deg,#1e90ff,#2ed573);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block; line-height:1;
+}
+.mol-name { font-size:.8rem;color:#8892a4;margin-top:6px;display:block; }
+.mol-subname { font-size:.7rem;color:#4a5568;margin-top:2px; }
+
+/* connectors from center to branches */
+.mol-lines {
+  position:absolute;
+  inset:0;pointer-events:none;z-index:-1;
+}
+
+/* ── BRANCHES GRID ── */
+.branches {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 16px;
+  position: relative;
+}
+
+/* connecting line from each card to top  */
+.branch-card {
+  position: relative;
+  cursor: pointer;
+}
+.branch-card::before {
+  content:'';
+  position:absolute;
+  top:-32px; left:50%;
+  width:2px;height:32px;
+  transform:translateX(-50%);
+  background:linear-gradient(to bottom,var(--cc)88,var(--cc)22);
+  transition:height .3s;
+}
+.branch-card.open::before { height:32px; }
+
+/* top dot */
+.branch-card::after {
+  content:'';
+  position:absolute;
+  top:-38px;left:50%;
+  width:10px;height:10px;
+  border-radius:50%;
+  background:var(--cc);
+  transform:translateX(-50%);
+  box-shadow:0 0 10px var(--cc);
+}
+
+/* horizontal connector bar */
+.h-bar {
+  position: absolute;
+  top: -33px;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #1e90ff, #ff6bc1);
+  opacity: .35;
+  border-radius: 2px;
+}
+
+.card-inner {
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color .25s, box-shadow .25s, transform .25s;
+  backdrop-filter: blur(12px);
+}
+.branch-card:hover .card-inner,
+.branch-card.open .card-inner {
+  border-color: var(--cc)66;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3), 0 0 20px var(--cc)22;
+  transform: translateY(-3px);
+}
+
+/* card header */
+.card-header {
+  padding: 16px 18px;
+  display: flex; align-items:center; gap:10px;
+  background: linear-gradient(135deg, var(--cc)18, transparent);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  user-select:none;
+  transition: background .2s;
+}
+.branch-card.open .card-header {
+  background: linear-gradient(135deg, var(--cc)28, var(--cc)10);
+}
+.card-icon {
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+  background:var(--cg);
+  flex-shrink:0;
+  box-shadow:0 3px 10px var(--cc)44;
+}
+.card-title {
+  font-size:1.08rem;font-weight:800;
+  color:#e8edf5;line-height:1.3;
+}
+.card-arrow {
+  margin-left:auto;font-size:.65rem;
+  color:var(--cc);opacity:.7;
+  transition:transform .25s;
+  flex-shrink:0;
+}
+.branch-card.open .card-arrow { transform:rotate(180deg); }
+
+/* card body */
+.card-body {
+  max-height:0;overflow:hidden;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1);
+}
+.branch-card.open .card-body { max-height:800px; }
+
+.card-body-inner { padding:14px 16px 18px; display:flex;flex-direction:column;gap:12px; }
+
+/* sub item */
+.si {
+  position:relative;
+  padding-left:14px;
+}
+.si::before {
+  content:'';
+  position:absolute;left:0;top:6px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--cc);
+  box-shadow:0 0 6px var(--cc);
+}
+
+.si-title {
+  font-size:1rem;font-weight:700;
+  color:#c8d0e0;line-height:1.3;
+  margin-bottom:4px;
+}
+
+.si-leaves { display:flex;flex-direction:column;gap:3px; }
+.leaf {
+  font-size:.92rem;color:#5a6a80;
+  padding-left:10px;position:relative;line-height:1.45;
+}
+.leaf::before { content:'–';position:absolute;left:0;color:#3a4a60; }
+
+.eq {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.84rem;
+  background:rgba(0,0,0,.3);
+  border:1px solid var(--cc)33;
+  border-left:2px solid var(--cc)88;
+  border-radius:6px;
+  padding:6px 10px;
+  color:#7a9ab0;
+  line-height:1.55;
+  margin-top:4px;
+}
+
+/* divider between sub-items */
+.si + .si { border-top:1px solid rgba(255,255,255,.04); padding-top:12px; }
+
+/* ── COLORS per card ── */
+.c1 { --cc:#ff4757; --cg:linear-gradient(135deg,#ff4757,#ff6b81); }
+.c2 { --cc:#ffa502; --cg:linear-gradient(135deg,#ffa502,#ffcd56); }
+.c3 { --cc:#2ed573; --cg:linear-gradient(135deg,#2ed573,#7bed9f); }
+.c4 { --cc:#1e90ff; --cg:linear-gradient(135deg,#1e90ff,#70b8ff); }
+.c5 { --cc:#ff6bc1; --cg:linear-gradient(135deg,#ff6bc1,#ffb3dd); }
+
+.author {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  animation: fadeSlide .8s ease .6s both;
+}
+.author-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: #2a3a55;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.author-name {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #1e90ff, #2ed573, #ff6bc1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200%;
+  animation: gradShift 4s ease-in-out infinite;
+  letter-spacing: .5px;
+  filter: drop-shadow(0 0 8px rgba(30,144,255,.45));
+}
+.author-line {
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #1e90ff, #2ed573);
+  border-radius: 2px;
+}
+
+footer {
+  text-align:center;margin-top:56px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;color:#2a3444;letter-spacing:2px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlide { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.branch-card { animation: fadeSlide .5s ease both; }
+.branch-card:nth-child(2){animation-delay:.08s}
+.branch-card:nth-child(3){animation-delay:.16s}
+.branch-card:nth-child(4){animation-delay:.24s}
+.branch-card:nth-child(5){animation-delay:.32s}
+/* skip h-bar */
+.h-bar { animation:none; }
+</style>
+</head>
+<body>
+
+<!-- background -->
+<div class="bg"></div>
+
+<!-- chemistry decorations layer -->
+<div class="chem-deco" id="chemDeco"></div>
+
+<!-- SVG decorations: test tubes, flasks, hexagons -->
+<svg class="deco-svg" style="top:0;left:0;width:100%;height:100%" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- large hexagon structure left -->
+  <g stroke="#1e90ff" stroke-width="1" fill="none" opacity="0.5">
+    <polygon points="80,120 120,98 160,120 160,164 120,186 80,164" />
+    <polygon points="160,120 200,98 240,120 240,164 200,186 160,164" />
+    <polygon points="120,186 160,164 200,186 200,230 160,252 120,230" />
+    <line x1="160" y1="120" x2="160" y2="98"/>
+    <line x1="240" y1="120" x2="260" y2="108"/>
+    <line x1="80"  y1="120" x2="60"  y2="108"/>
+  </g>
+  <!-- hexagon structure right -->
+  <g stroke="#2ed573" stroke-width="1" fill="none" opacity="0.4">
+    <polygon points="1020,200 1060,178 1100,200 1100,244 1060,266 1020,244" />
+    <polygon points="1100,200 1140,178 1180,200 1180,244 1140,266 1100,244" />
+    <polygon points="1060,266 1100,244 1140,266 1140,310 1100,332 1060,310" />
+  </g>
+  <!-- test tube left -->
+  <g stroke="#ff4757" stroke-width="1.5" fill="none" opacity="0.5" transform="translate(30,320) rotate(-15)">
+    <rect x="0" y="0" width="22" height="70" rx="11"/>
+    <line x1="0" y1="15" x2="22" y2="15"/>
+    <!-- bubbles inside -->
+    <circle cx="8"  cy="45" r="3" fill="#ff4757" opacity="0.3"/>
+    <circle cx="14" cy="55" r="2" fill="#ff4757" opacity="0.3"/>
+    <circle cx="10" cy="35" r="1.5" fill="#ff4757" opacity="0.2"/>
+  </g>
+  <!-- flask right -->
+  <g stroke="#ffa502" stroke-width="1.5" fill="none" opacity="0.45" transform="translate(1130,350)">
+    <path d="M10,0 L10,30 L0,60 Q-5,75 10,75 Q25,75 20,60 L10,30"/>
+    <path d="M6,0 L14,0" stroke-width="2"/>
+    <line x1="10" y1="0" x2="10" y2="-10"/>
+    <ellipse cx="10" cy="62" rx="8" ry="5" fill="#ffa502" opacity="0.15"/>
+  </g>
+  <!-- molecule diagram top center -->
+  <g transform="translate(540,20)" stroke-width="1.2" fill="none" opacity="0.3">
+    <!-- H-C bond -->
+    <circle cx="30"  cy="30" r="10" stroke="#ff4757"/>
+    <text x="27" y="34" font-size="9" fill="#ff4757" font-family="monospace">H</text>
+    <circle cx="70"  cy="30" r="12" stroke="#1e90ff"/>
+    <text x="64" y="35" font-size="10" fill="#1e90ff" font-family="monospace">C</text>
+    <circle cx="110" cy="30" r="10" stroke="#2ed573"/>
+    <text x="106" y="34" font-size="9" fill="#2ed573" font-family="monospace">O</text>
+    <circle cx="70"  cy="62" r="10" stroke="#2ed573"/>
+    <text x="66" y="66" font-size="9" fill="#2ed573" font-family="monospace">O</text>
+    <line x1="40"  y1="30" x2="58"  y2="30"/>
+    <line x1="82"  y1="30" x2="100" y2="30"/>
+    <line x1="70"  y1="42" x2="70"  y2="52"/>
+    <!-- double bond -->
+    <line x1="84"  y1="27" x2="100" y2="27"/>
+    <line x1="84"  y1="33" x2="100" y2="33"/>
+  </g>
+  <!-- Na atom floating -->
+  <g transform="translate(1050,520)" opacity="0.35">
+    <circle cx="20" cy="20" r="18" stroke="#ff6bc1" stroke-width="1.5" fill="none"/>
+    <circle cx="20" cy="20" r="12" stroke="#ff6bc1" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+    <text x="13" y="25" font-size="11" fill="#ff6bc1" font-family="monospace" font-weight="600">Na</text>
+  </g>
+  <!-- pH scale indicator -->
+  <g transform="translate(40,620)" opacity="0.3">
+    <rect x="0" y="0" width="120" height="12" rx="6" fill="url(#phGrad)"/>
+    <defs>
+      <linearGradient id="phGrad" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0%"   stop-color="#ff4757"/>
+        <stop offset="50%"  stop-color="#2ed573"/>
+        <stop offset="100%" stop-color="#1e90ff"/>
+      </linearGradient>
+    </defs>
+    <text x="0"   y="26" font-size="7" fill="#ff4757"  font-family="monospace">pH 0</text>
+    <text x="47"  y="26" font-size="7" fill="#2ed573"   font-family="monospace">7</text>
+    <text x="105" y="26" font-size="7" fill="#1e90ff"   font-family="monospace">14</text>
+    <!-- marker at pH 8.3 -->
+    <line x1="71" y1="-4" x2="71" y2="16" stroke="#ffa502" stroke-width="1.5"/>
+    <text x="62" y="-8" font-size="7" fill="#ffa502" font-family="monospace">8.3 ↑</text>
+  </g>
+</svg>
+
+<script>
+// generate floating particles
+const bg = document.querySelector('.bg');
+const colors = ['#1e90ff','#2ed573','#ff4757','#ffa502','#ff6bc1'];
+for(let i=0;i<28;i++){
+  const d=document.createElement('div');
+  d.className='particle';
+  const sz=Math.random()*5+2;
+  d.style.cssText=`
+    width:${sz}px;height:${sz}px;
+    left:${Math.random()*100}%;
+    background:${colors[i%5]};
+    animation-duration:${7+Math.random()*14}s;
+    animation-delay:${Math.random()*14}s;
+    opacity:0;
+  `;
+  bg.appendChild(d);
+}
+
+// floating molecule label nodes
+const deco = document.getElementById('chemDeco');
+const labels = [
+  {t:'Na⁺',c:'#1e90ff'}, {t:'HCO₃⁻',c:'#2ed573'}, {t:'CO₂↑',c:'#ff4757'},
+  {t:'H₂O',c:'#ffa502'}, {t:'pH 8.3',c:'#ff6bc1'}, {t:'⇌',c:'#1e90ff'},
+  {t:'acid',c:'#ff4757'}, {t:'base',c:'#2ed573'},   {t:'Δ t°',c:'#ffa502'},
+  {t:'buffer',c:'#ff6bc1'},{t:'ion',c:'#1e90ff'},   {t:'H⁺',c:'#ff4757'},
+];
+const positions = [
+  [3,12],[92,8],[6,42],[90,35],[4,68],[88,62],
+  [5,88],[93,82],[48,5],[50,92],[18,25],[78,55],
+];
+labels.forEach((lb,i)=>{
+  const el=document.createElement('div');
+  el.className='mol-node';
+  const sz = 32 + Math.random()*18;
+  el.style.cssText=`
+    left:${positions[i][0]}%;top:${positions[i][1]}%;
+    width:${sz}px;height:${sz}px;
+    font-size:${sz*0.28}px;
+    color:${lb.c};border-color:${lb.c}55;
+    background:${lb.c}0d;
+    animation-duration:${5+Math.random()*6}s;
+    animation-delay:${Math.random()*5}s;
+  `;
+  el.textContent=lb.t;
+  deco.appendChild(el);
+});
+
+// rising bubbles
+for(let i=0;i<14;i++){
+  const b=document.createElement('div');
+  b.className='bubble';
+  const sz=4+Math.random()*10;
+  const c=colors[i%5];
+  b.style.cssText=`
+    width:${sz}px;height:${sz}px;
+    left:${Math.random()*100}%;
+    bottom:${Math.random()*30}%;
+    border-color:${c}66;
+    animation-duration:${8+Math.random()*16}s;
+    animation-delay:${Math.random()*12}s;
+  `;
+  deco.appendChild(b);
+}
+</script>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">Hoá học lớp 12</div>
+    <h1>Sơ đồ tư duy ứng dụng<br><span class="formula">NaHCO<sub>3</sub></span></h1>
+    <div class="tagline">Muối Hiđrocacbonat · Natri hiđrocacbonat · Baking Soda</div>
+    <div class="badge-row">
+      <span class="badge b1">M = 84 g/mol</span>
+      <span class="badge b2">pH ≈ 8.3</span>
+      <span class="badge b3">Muối lưỡng tính</span>
+    </div>
+  </div>
+
+  <!-- MOLECULE CENTER -->
+  <div class="molecule-row">
+    <div class="mol-center">
+      <span class="mol-formula">🧪 NaHCO<sub style="-webkit-text-fill-color:transparent;background:linear-gradient(135deg,#1e90ff,#2ed573);-webkit-background-clip:text;background-clip:text;font-size:.6em;vertical-align:sub;">3</sub></span>
+      <span class="mol-name">Natri hiđrocacbonat</span>
+      <span class="mol-subname">Baking Soda · Muối lưỡng tính</span>
+    </div>
+  </div>
+
+  <!-- BRANCHES -->
+  <div class="branches">
+    <div class="h-bar"></div>
+
+    <!-- 1. Tính chất hoá học -->
+    <div class="branch-card c1" onclick="toggle(this)">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">⚗️</div>
+          <div class="card-title">Tính chất Hoá học</div>
+          <div class="card-arrow">▼</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+
+            <div class="si">
+              <div class="si-title">Tính lưỡng tính</div>
+              <div class="si-leaves">
+                <div class="leaf">Phản ứng được cả với acid lẫn base</div>
+                <div class="leaf">Ion HCO₃⁻ vừa cho, vừa nhận H⁺</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Tác dụng với acid mạnh</div>
+              <div class="eq">NaHCO₃ + HCl → NaCl + H₂O + CO₂↑</div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Tác dụng với base mạnh</div>
+              <div class="eq">NaHCO₃ + NaOH → Na₂CO₃ + H₂O</div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Phân huỷ khi đun nóng</div>
+              <div class="eq">2NaHCO₃ →(t°) Na₂CO₃ + H₂O + CO₂↑</div>
+              <div class="si-leaves">
+                <div class="leaf">Xảy ra ở nhiệt độ trên 50°C</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Tính kiềm nhẹ trong nước</div>
+              <div class="si-leaves">
+                <div class="leaf">pH dung dịch ≈ 8.3, môi trường bazơ yếu</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Nấu ăn & Thực phẩm -->
+    <div class="branch-card c2" onclick="toggle(this)">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🍞</div>
+          <div class="card-title">Nấu ăn & Thực phẩm</div>
+          <div class="card-arrow">▼</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+
+            <div class="si">
+              <div class="si-title">Bột nở (baking powder)</div>
+              <div class="si-leaves">
+                <div class="leaf">Phân huỷ khi nướng → CO₂ làm bánh xốp, nở đều</div>
+                <div class="leaf">Dùng trong bánh mì, muffin, bánh ngọt</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Kết hợp acid thực phẩm</div>
+              <div class="eq">NaHCO₃ + CH₃COOH → CH₃COONa + H₂O + CO₂↑</div>
+              <div class="si-leaves">
+                <div class="leaf">Phản ứng tức thì với giấm, kem tartar</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Làm mềm rau củ</div>
+              <div class="si-leaves">
+                <div class="leaf">Giữ màu xanh tươi khi luộc rau</div>
+                <div class="leaf">Làm mềm đậu khô nhanh hơn khi nấu</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Cân bằng vị chua</div>
+              <div class="si-leaves">
+                <div class="leaf">Dùng trong sốt cà chua, đồ uống có ga</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Y tế & Sức khoẻ -->
+    <div class="branch-card c3" onclick="toggle(this)">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">💊</div>
+          <div class="card-title">Y tế & Sức khoẻ</div>
+          <div class="card-arrow">▼</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+
+            <div class="si">
+              <div class="si-title">Thuốc kháng acid (antacid)</div>
+              <div class="eq">NaHCO₃ + HCl(dạ dày) → NaCl + H₂O + CO₂↑</div>
+              <div class="si-leaves">
+                <div class="leaf">Trung hoà HCl dư, giảm ợ chua và viêm loét</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Truyền tĩnh mạch</div>
+              <div class="si-leaves">
+                <div class="leaf">Điều trị toan chuyển hoá (nhiễm toan máu)</div>
+                <div class="leaf">Cân bằng pH huyết tương</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Sơ cứu bỏng acid</div>
+              <div class="si-leaves">
+                <div class="leaf">Rửa vết thương bằng dung dịch NaHCO₃ loãng</div>
+                <div class="leaf">Trung hoà acid tiếp xúc trên da tức thì</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Kem đánh răng & súc miệng</div>
+              <div class="si-leaves">
+                <div class="leaf">Làm trắng nhẹ, khử mùi hôi miệng</div>
+                <div class="leaf">Cân bằng pH khoang miệng</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Làm sạch & Khử mùi -->
+    <div class="branch-card c4" onclick="toggle(this)">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🧹</div>
+          <div class="card-title">Làm sạch & Khử mùi</div>
+          <div class="card-arrow">▼</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+
+            <div class="si">
+              <div class="si-title">Tẩy vết bẩn hữu cơ, dầu mỡ</div>
+              <div class="si-leaves">
+                <div class="leaf">Tính kiềm nhẹ (pH 8.3) phân huỷ chất bẩn</div>
+                <div class="leaf">An toàn cho inox, gốm sứ, bề mặt nhạy cảm</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Khử mùi tủ lạnh</div>
+              <div class="si-leaves">
+                <div class="leaf">Hấp thụ mùi acid từ thức ăn hỏng</div>
+                <div class="leaf">Đặt hộp mở trong ngăn mát, thay mỗi tháng</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Thông tắc cống nhẹ</div>
+              <div class="si-leaves">
+                <div class="leaf">Kết hợp với giấm → CO₂ bọt đẩy vật cản</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Thân thiện môi trường</div>
+              <div class="si-leaves">
+                <div class="leaf">Không độc, phân huỷ sinh học hoàn toàn</div>
+                <div class="leaf">Thay thế hoá chất tẩy rửa công nghiệp mạnh</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Nông nghiệp & Công nghiệp -->
+    <div class="branch-card c5" onclick="toggle(this)">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🌱</div>
+          <div class="card-title">Nông nghiệp & CN</div>
+          <div class="card-arrow">▼</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+
+            <div class="si">
+              <div class="si-title">Điều chỉnh pH đất</div>
+              <div class="si-leaves">
+                <div class="leaf">Bổ sung vào đất chua → nâng pH</div>
+                <div class="leaf">Cải thiện điều kiện trồng trọt</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Diệt nấm mốc cây trồng</div>
+              <div class="si-leaves">
+                <div class="leaf">Phun dung dịch loãng lên cây</div>
+                <div class="leaf">Ngăn ngừa nấm bệnh tự nhiên, an toàn</div>
+              </div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Bình cứu hoả CO₂</div>
+              <div class="eq">2NaHCO₃ + H₂SO₄ → Na₂SO₄ + 2H₂O + 2CO₂↑</div>
+            </div>
+
+            <div class="si">
+              <div class="si-title">Công nghiệp dệt nhuộm & da</div>
+              <div class="si-leaves">
+                <div class="leaf">Tác nhân đệm pH trong nhuộm vải sợi</div>
+                <div class="leaf">Xử lý và làm mềm da thuộc</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /branches -->
+
+  <footer>⬡ NaHCO₃ · Natri Hiđrocacbonat · Hoá học lớp 12 · Muối lưỡng tính ⬡</footer>
+</div>
+
+<div class="author">
+  <div class="author-label">Tác giả</div>
+  <div class="author-name">Nguyễn Hoàng Long</div>
+  <div class="author-line"></div>
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+}
+// open all by default
+document.querySelectorAll('.branch-card').forEach(c => c.classList.add('open'));
+</script>
+</body>
+</html>
